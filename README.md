@@ -9,8 +9,11 @@ Bootstraps a full featured kubernetes cluster using:
 - [kubespray](https://kubespray.io/#/)
 - [terraform](https://www.terraform.io/)
 
-It will create a 1 master 3 worker nodes cluster, using [cilium cni](https://cilium.io/)
-and [openstack external cloud provider](https://github.com/kubernetes/cloud-provider-openstack)
+It will create a 1 master 3 worker nodes cluster with:
+- [cri-o](https://cri-o.io/) container engine
+- [cilium](https://cilium.io/) CNI
+- openstack external [cloud provider](https://github.com/kubernetes/cloud-provider-openstack)
+
 using only one floating address for the master and API access
 
 Persistent volumes are provided by cinder and cinder-csi plugin
