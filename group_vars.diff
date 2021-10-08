@@ -1,0 +1,154 @@
+diff -Naur '--exclude=no_floating.yml' ../sample/group_vars/all/all.yml group_vars/all/all.yml
+--- ../sample/group_vars/all/all.yml	2021-10-08 09:52:35.496724952 +0200
++++ group_vars/all/all.yml	2021-10-08 14:48:57.047780644 +0200
+@@ -3,7 +3,7 @@
+ etcd_data_dir: /var/lib/etcd
+
+ ## Experimental kubeadm etcd deployment mode. Available only for new deployment
+-etcd_kubeadm_enabled: false
++etcd_kubeadm_enabled: true
+
+ ## Directory where the binaries will be installed
+ bin_dir: /usr/local/bin
+@@ -42,21 +42,25 @@
+ ### OTHER OPTIONAL VARIABLES
+
+ ## Upstream dns servers
+-# upstream_dns_servers:
+-#   - 8.8.8.8
+-#   - 8.8.4.4
++upstream_dns_servers:
++  - 83.166.143.51
++  - 83.166.143.52
++
++nameservers:
++  - 83.166.143.51
++  - 83.166.143.52
+
+ ## There are some changes specific to the cloud providers
+ ## for instance we need to encapsulate packets with some network plugins
+ ## If set the possible values are either 'gce', 'aws', 'azure', 'openstack', 'vsphere', 'oci', or 'external'
+ ## When openstack is used make sure to source in the openstack credentials
+ ## like you would do when using openstack-client before starting the playbook.
+-# cloud_provider:
++cloud_provider: external
+
+ ## When cloud_provider is set to 'external', you can set the cloud controller to deploy
+ ## Supported cloud controllers are: 'openstack' and 'vsphere'
+ ## When openstack or vsphere are used make sure to source in the required fields
+-# external_cloud_provider:
++external_cloud_provider: openstack
+
+ ## Set these proxy values in order to update package manager and docker daemon to use proxies
+ # http_proxy: ""
+@@ -97,7 +101,7 @@
+ # kube_read_only_port: 10255
+
+ ## Set true to download and cache container
+-# download_container: true
++download_container: false
+
+ ## Deploy container engine
+ # Set false if you want to deploy container engine manually.
+@@ -116,3 +120,6 @@
+
+ ## Check if access_ip responds to ping. Set false if your firewall blocks ICMP.
+ # ping_access_ip: true
++
++download_keep_remote_cache: true
++
+diff -Naur '--exclude=no_floating.yml' ../sample/group_vars/all/cri-o.yml group_vars/all/cri-o.yml
+--- ../sample/group_vars/all/cri-o.yml	2021-10-08 09:52:35.496724952 +0200
++++ group_vars/all/cri-o.yml	2021-10-08 15:24:38.677709042 +0200
+@@ -4,3 +4,16 @@
+ #   - registry: 10.0.0.2:5000
+ #     username: user
+ #     password: pass
++
++---
++crio_registries_mirrors:
++  - prefix: docker.io
++    insecure: false
++    blocked: false
++    location: registry-1.docker.io
++    mirrors:
++      - location: mirror.gcr.io
++        insecure: false
++
++crio_pids_limit: 4096
++
+diff -Naur '--exclude=no_floating.yml' ../sample/group_vars/all/openstack.yml group_vars/all/openstack.yml
+--- ../sample/group_vars/all/openstack.yml	2021-10-08 09:52:35.496724952 +0200
++++ group_vars/all/openstack.yml	2021-10-08 14:52:40.955637783 +0200
+@@ -17,8 +17,8 @@
+
+ ## Values for the external OpenStack Cloud Controller
+ # external_openstack_lbaas_network_id: "Neutron network ID to create LBaaS VIP"
+-# external_openstack_lbaas_subnet_id: "Neutron subnet ID to create LBaaS VIP"
+-# external_openstack_lbaas_floating_network_id: "Neutron network ID to get floating IP from"
++external_openstack_lbaas_subnet_id: "37906224-48da-4673-8b44-b4026056a351"
++external_openstack_lbaas_floating_network_id: "0f9c3806-bd21-490f-918d-4a6d1c648489"
+ # external_openstack_lbaas_floating_subnet_id: "Neutron subnet ID to get floating IP from"
+ # external_openstack_lbaas_method: "ROUND_ROBIN"
+ # external_openstack_lbaas_provider: "octavia"
+@@ -45,5 +45,10 @@
+
+ ## To use Cinder CSI plugin to provision volumes set this value to true
+ ## Make sure to source in the openstack credentials
+-# cinder_csi_enabled: true
++cinder_csi_enabled: true
+ # cinder_csi_controller_replicas: 1
++cinder_csi_ignore_volume_az: true
++
++storage_classes:
++  - name: cinder-csi
++    is_default: true
+diff -Naur '--exclude=no_floating.yml' ../sample/group_vars/k8s_cluster/k8s-cluster.yml group_vars/k8s_cluster/k8s-cluster.yml
+--- ../sample/group_vars/k8s_cluster/k8s-cluster.yml	2021-10-08 09:53:06.703490117 +0200
++++ group_vars/k8s_cluster/k8s-cluster.yml	2021-10-08 14:54:24.396811390 +0200
+@@ -64,7 +64,7 @@
+
+ # Choose network plugin (cilium, calico, weave or flannel. Use cni for generic cni plugin)
+ # Can also be set to 'cloud', which lets the cloud provider setup appropriate routing
+-kube_network_plugin: calico
++kube_network_plugin: cilium
+
+ # Setting multi_networking to true will install Multus: https://github.com/intel/multus-cni
+ kube_network_plugin_multus: false
+@@ -187,7 +187,7 @@
+ enable_coredns_k8s_endpoint_pod_names: false
+
+ # Can be docker_dns, host_resolvconf or none
+-resolvconf_mode: docker_dns
++resolvconf_mode: host_resolvconf
+ # Deploy netchecker app to verify DNS resolve as an HTTP service
+ deploy_netchecker: false
+ # Ip address of the kubernetes skydns service
+@@ -197,7 +197,7 @@
+
+ ## Container runtime
+ ## docker for docker, crio for cri-o and containerd for containerd.
+-container_manager: docker
++container_manager: crio
+
+ # Additional container runtimes
+ kata_containers_enabled: false
+@@ -231,7 +231,7 @@
+ # podsecuritypolicy_privileged_spec: {}
+
+ # Make a copy of kubeconfig on the host that runs Ansible in {{ inventory_dir }}/artifacts
+-# kubeconfig_localhost: false
++kubeconfig_localhost: true
+ # Download kubectl onto the host that runs Ansible in {{ bin_dir }}
+ # kubectl_localhost: false
+
+@@ -261,7 +261,8 @@
+ volume_cross_zone_attachment: false
+ ## Add Persistent Volumes Storage Class for corresponding cloud provider (supported: in-tree OpenStack, Cinder CSI,
+ ## AWS EBS CSI, Azure Disk CSI, GCP Persistent Disk CSI)
+-persistent_volumes_enabled: false
++persistent_volumes_enabled: true
++expand_persistent_volumes: true
+
+ ## Container Engine Acceleration
+ ## Enable container acceleration feature, for example use gpu acceleration in containers
