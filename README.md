@@ -20,6 +20,9 @@ Persistent volumes are provided by cinder and cinder-csi plugin
 
 Services of type Load balancer are provided by octavia
 
+It takes approximately 50 seconds to create the infrastructure with terraform,
+and an additional 5 minutes to bootstrap the cluster.
+
 ## Prepararation
 
 Create a new openstack project in Infomaniak management pannel and download
