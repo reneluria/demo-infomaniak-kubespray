@@ -98,9 +98,10 @@ ln -sf ../../contrib/terraform/openstack/hosts
 
 Edit *cluster.tfvars*
 
-([here](cluster.tfvars) is an example
-don't forget to update the ssh key path and k8s_allowed_remote_ips
-to match the ip address/range or list to allow to connect to your cluster
+[here](cluster.tfvars) is an example
+
+⚠️ don't forget to update the ssh key path and k8s_allowed_remote_ips
+to match the ip address/range/list to allow to connect to your cluster ⚠️
 
 Apply
 
