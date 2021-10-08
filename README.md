@@ -115,6 +115,7 @@ patch -p0 < group_vars.diff
 
 ### all/all.yml
 
+```diff
 -etcd_kubeadm_enabled: false
 +etcd_kubeadm_enabled: true
 
@@ -133,6 +134,7 @@ patch -p0 < group_vars.diff
 
 +download_keep_remote_cache: true
 
+```
 
 ### all/cri-o.yml
 
