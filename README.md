@@ -77,7 +77,7 @@ chmod +x bin/kubectl
 Download kubespray
 
 ```shell
-git clone --branch release-2.17 https://github.com/kubernetes-sigs/kubespray kubespray-orig
+git clone --branch release-2.17 https://github.com/kubernetes-sigs/kubespray kubespray
 cd kubespray
 pip install -r requirements.txt
 ```
