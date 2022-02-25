@@ -84,7 +84,7 @@ pip install -r requirements.txt
 
 ## create infrastructure (terraform)
 
-via https://github.com/kubernetes-sigs/kubespray/tree/v2.17.0/contrib/terraform/openstack
+via https://github.com/kubernetes-sigs/kubespray/tree/release-2.18/contrib/terraform/openstack
 
 Prepare inventory
 
@@ -111,7 +111,7 @@ Now, add this inside `terraform {}` in `versions.tf` to store the states in the 
 And patch the `hosts` script to read from object storage when possible:
 
 ```shell
-patch -p0 < ../../../hosts.patch
+curl -sf https://raw.githubusercontent.com/reneluria/demo-infomaniak-kubespray/main/hosts.patch | patch -p0 --dry-run
 ```
 
 Edit *cluster.tfvars*
