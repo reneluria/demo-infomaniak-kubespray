@@ -187,6 +187,9 @@ cinder_csi_ignore_volume_az: true
 ### k8s_cluster/k8s-cluster.yml
 
 ```diff
+-dns_domain: "{{ cluster_name }}"
++dns_domain: cluster.local
+
 -kube_network_plugin: calico
 +kube_network_plugin: cilium
 
@@ -203,6 +206,9 @@ cinder_csi_ignore_volume_az: true
 +expand_persistent_volumes: true
 ```
 
+also update `cluster_name: cluster.local` to match your cluster name
+
+openstack resources created by the cloud controler manager will use this value as a prefix
 
 ## kubespray ansible playbook
 
