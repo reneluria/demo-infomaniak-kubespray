@@ -99,6 +99,21 @@ cp -r ../sample/group_vars/ group_vars
 ln -sf ../../contrib/terraform/openstack/hosts
 ```
 
+Now, add this inside `terraform {}` in `versions.tf` to store the states in the object store:
+
+```terraform
+  backend "swift" {
+    container           = "elastic-terraform-state"
+    archive_container   = "elastic-terraform-state-archive"
+  }
+```
+
+And patch the `hosts` script to read from object storage when possible:
+
+```shell
+patch -p0 < ../../../hosts.patch
+```
+
 Edit *cluster.tfvars*
 
 [here](cluster.tfvars) is an example

@@ -1,0 +1,55 @@
+--- hosts.orig	2022-02-25 08:52:14.000000000 +0100
++++ hosts	2022-02-25 08:52:17.000000000 +0100
+@@ -27,16 +27,35 @@
+ import json
+ import os
+ import re
++import requests
++import tempfile
+ 
+ VERSION = '0.4.0pre'
+ 
+ 
+ def tfstates(root=None):
+     root = root or os.getcwd()
+-    for dirpath, _, filenames in os.walk(root):
+-        for name in filenames:
+-            if os.path.splitext(name)[-1] == '.tfstate':
+-                yield os.path.join(dirpath, name)
++    remote_tfstate_config = os.path.join(root, ".terraform/terraform.tfstate")
++    if os.path.exists(remote_tfstate_config):
++        with open(os.path.join(root, ".terraform/terraform.tfstate"), "r") as f:
++            config = json.load(f)
++        tfstate_file = tempfile.NamedTemporaryFile()
++        with requests.get(
++            config["backend"]["config"]["address"],
++            auth=(
++                config["backend"]["config"]["username"],
++                config["backend"]["config"]["password"],
++            ),
++        ) as r:
++            tfstate_file.write(r.text.encode())
++        tfstate_file.file.flush()
++        yield tfstate_file.name
++    else:
++        for dirpath, _, filenames in os.walk(root):
++            for name in filenames:
++                if os.path.splitext(name)[-1] == '.tfstate':
++                    yield os.path.join(dirpath, name)
++
+ 
+ def convert_to_v3_structure(attributes, prefix=''):
+     """ Convert the attributes from v4 to v3
+@@ -332,6 +351,12 @@
+     # groups specific to kubespray
+     for group in attrs['metadata'].get('kubespray_groups', "").split(","):
+         groups.append(group)
++        if group == "kube-master":
++            groups.append("kube_control_plane")
++        elif group == "kube-node":
++            groups.append("kube_node")
++        elif group == "k8s-cluster":
++            groups.append("k8s_cluster")
+ 
+     return name, attrs, groups
+ 
